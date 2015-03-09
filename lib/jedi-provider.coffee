@@ -22,13 +22,16 @@ class JediProvider
       row = options.cursor.getBufferPosition().row
       column = options.cursor.getBufferPosition().column
 
-      escaped = text.replace(/'/g, "''")
+      # escape quotes and newlines, strip carriage returns
+      escaped = text.replace(/\'/g, "\\\'")
+      escaped = escaped.replace(/\"/g, "\\\"")
+      escaped = escaped.replace(/\r]/g, '');
+      escaped = escaped.replace(/[\n]/g, '\\n');
 
       projectPath = atom.project.getPath()
 
       # completion scripts expects 4 arguments: text, current line, column and project path
-      # TODO: this breaks when a docstring uses '''
-      command = "python " + __dirname + "/jedi-complete.py '" + escaped + "' " + row + " " + column + " " + projectPath
+      command = 'python ' + __dirname + '/jedi-complete.py "' + escaped + '" ' + row + ' ' + column + ' ' + projectPath
 
       exec command, (error, stdout, stderr) ->
         resolve(suggestions) unless stdout != ""
@@ -36,7 +39,7 @@ class JediProvider
         resolve(suggestions) unless error != null
 
         jediResponse = JSON.parse stdout
-        
+
         # get prefix
         lines = text.split "\n"
         line = lines[row]

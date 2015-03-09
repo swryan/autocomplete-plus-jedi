@@ -20,6 +20,8 @@ if __name__ == "__main__":
 
         sys.path.append(project_path)
 
+        source = source.replace('\\n', '\n');
+
         script = jedi.api.Script(
             source=source,
             line=line + 1,
